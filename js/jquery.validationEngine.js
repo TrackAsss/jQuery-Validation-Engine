@@ -416,12 +416,17 @@ define('validation/js/jquery.validationEngine',['jquery'], function($){
 						if (typeof(positionType)=='string' && positionType.indexOf(":")!=-1)
 							positionType=positionType.substring(0,positionType.indexOf(":"));
 
-						if (positionType!="bottomRight" && positionType!="bottomLeft") {
-							var prompt_err= methods._getPrompt(first_err);
-							if (prompt_err) {
-								destination=prompt_err.offset().top;
-							}
+					if (positionType!="bottomRight" && positionType!="bottomLeft") {
+						var prompt_err= methods._getPrompt(first_err);
+						if (prompt_err) {
+							destination=prompt_err.offset().top;
 						}
+					}
+					
+					// Offset the amount the page scrolls by an amount in px to accomodate fixed elements at top of page
+					if (options.scrollOffset) {
+						destination -= options.scrollOffset;
+					}
 
 						// get the position of the first error, there should be at least one, no need to check this
 						//var destination = form.find(".formError:not('.greenPopup'):first").offset().top;
