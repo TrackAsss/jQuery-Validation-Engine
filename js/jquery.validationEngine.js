@@ -753,35 +753,17 @@ define('validation/js/jquery.validationEngine',['jquery'], function($){
 						field_errors++;
 					}	
 				}
-				
-				// If it has been specified that validation should end now, break
-				if (end_validation) {
-					break;
-				}
-				
-				// If we have a string, that means that we have an error, so add it to the error message.
-				if (typeof errorMsg == 'string') {
-					promptText += errorMsg + "<br/>";
-					options.isError = true;
-					field_errors++;
-				}	
-			}
-			// If the rules required is not added, an empty field is not validated
-			if(!required && field.val() && field.val().length < 1) options.isError = false;
+				// If the rules required is not added, an empty field is not validated
+				if(!required && field.val().length < 1) options.isError = false;
 
-			// Hack for radio/checkbox group button, the validation go into the
-			// first radio/checkbox of the group
-			var fieldType = field.prop("type");
-			var positionType=field.data("promptPosition") || options.promptPosition;
+				// Hack for radio/checkbox group button, the validation go into the
+				// first radio/checkbox of the group
+				var fieldType = field.prop("type");
 
-			if ((fieldType == "radio" || fieldType == "checkbox") && form.find("input[name='" + fieldName + "']").size() > 1) {
-				if(positionType === 'inline') {
-					field = $(form.find("input[name='" + fieldName + "'][type!=hidden]:last"));
-				} else {
-				field = $(form.find("input[name='" + fieldName + "'][type!=hidden]:first"));
+				if ((fieldType == "radio" || fieldType == "checkbox") && form.find("input[name='" + fieldName + "']").size() > 1) {
+					field = $(form.find("input[name='" + fieldName + "'][type!=hidden]:first"));
+					options.showArrow = false;
 				}
-				options.showArrow = false;
-			}
 
 				if(field.is(":hidden") && options.prettySelect) {
 					field = form.find("#" + options.usePrefix + methods._jqSelector(field.attr('id')) + options.useSuffix);
@@ -1613,64 +1595,52 @@ define('validation/js/jquery.validationEngine',['jquery'], function($){
 				if (ajaxed)
 					prompt.addClass("ajaxed");
 
-			// create the prompt content
-			var promptContent = $('<div>').addClass("formErrorContent").html(promptText).appendTo(prompt);
+				// create the prompt content
+				var promptContent = $('<div>').addClass("formErrorContent").html(promptText).appendTo(prompt);
+				// create the css arrow pointing at the field
+				// note that there is no triangle on max-checkbox and radio
+				if (options.showArrow) {
+					var arrow = $('<div>').addClass("formErrorArrow");
 
-			// determine position type
-			var positionType=field.data("promptPosition") || options.promptPosition;
+					//prompt positioning adjustment support. Usage: positionType:Xshift,Yshift (for ex.: bottomLeft:+20 or bottomLeft:-20,+10)
+					var positionType=field.data("promptPosition") || options.promptPosition;
+					if (typeof(positionType)=='string') 
+					{
+						var pos=positionType.indexOf(":");
+						if(pos!=-1)
+							positionType=positionType.substring(0,pos);
+					}
 
-			// create the css arrow pointing at the field
-			// note that there is no triangle on max-checkbox and radio
-			if (options.showArrow) {
-				var arrow = $('<div>').addClass("formErrorArrow");
-
-				//prompt positioning adjustment support. Usage: positionType:Xshift,Yshift (for ex.: bottomLeft:+20 or bottomLeft:-20,+10)
-				if (typeof(positionType)=='string') 
-				{
-					var pos=positionType.indexOf(":");
-					if(pos!=-1)
-						positionType=positionType.substring(0,pos);
-				}
-
-				switch (positionType) {
-					case "bottomLeft":
-					case "bottomRight":
-						prompt.find(".formErrorContent").before(arrow);
-						arrow.addClass("formErrorArrowBottom").html('<div class="line1"><!-- --></div><div class="line2"><!-- --></div><div class="line3"><!-- --></div><div class="line4"><!-- --></div><div class="line5"><!-- --></div><div class="line6"><!-- --></div><div class="line7"><!-- --></div><div class="line8"><!-- --></div><div class="line9"><!-- --></div><div class="line10"><!-- --></div>');
-						break;
-					case "topLeft":
-					case "topRight":
-						arrow.html('<div class="line10"><!-- --></div><div class="line9"><!-- --></div><div class="line8"><!-- --></div><div class="line7"><!-- --></div><div class="line6"><!-- --></div><div class="line5"><!-- --></div><div class="line4"><!-- --></div><div class="line3"><!-- --></div><div class="line2"><!-- --></div><div class="line1"><!-- --></div>');
-						prompt.append(arrow);
-						break;
+					switch (positionType) {
+						case "bottomLeft":
+						case "bottomRight":
+							prompt.find(".formErrorContent").before(arrow);
+							arrow.addClass("formErrorArrowBottom").html('<div class="line1"><!-- --></div><div class="line2"><!-- --></div><div class="line3"><!-- --></div><div class="line4"><!-- --></div><div class="line5"><!-- --></div><div class="line6"><!-- --></div><div class="line7"><!-- --></div><div class="line8"><!-- --></div><div class="line9"><!-- --></div><div class="line10"><!-- --></div>');
+							break;
+						case "topLeft":
+						case "topRight":
+							arrow.html('<div class="line10"><!-- --></div><div class="line9"><!-- --></div><div class="line8"><!-- --></div><div class="line7"><!-- --></div><div class="line6"><!-- --></div><div class="line5"><!-- --></div><div class="line4"><!-- --></div><div class="line3"><!-- --></div><div class="line2"><!-- --></div><div class="line1"><!-- --></div>');
+							prompt.append(arrow);
+							break;
+					}
 				}
 				// Modify z-indexes  for jquery ui
 				if (field.closest('.ui-dialog').length)
 					prompt.addClass('formErrorInsideDialog');
 
-			prompt.css({
-				"opacity": 0,
-			});
-			if(positionType === 'inline') {
-				prompt.addClass("inline");
-				if(typeof field.attr('data-prompt-target') !== 'undefined' && $('#'+field.attr('data-prompt-target')).length > 0) {
-					prompt.appendTo($('#'+field.attr('data-prompt-target')));
-				} else {
-					field.after(prompt);
-				}
-			
-			} else {
-				field.before(prompt);				
+				prompt.css({
+					"opacity": 0,
+					'position':'absolute'
+				});
+				field.before(prompt);
+				
 				var pos = methods._calculatePosition(field, prompt, options);
 				prompt.css({
-					'position':'absolute',
 					"top": pos.callerTopPosition,
 					"left": pos.callerleftPosition,
 					"marginTop": pos.marginTopSize,
 					"opacity": 0
 				}).data("callerField", field);
-			}
-			
 
 				if (options.autoHidePrompt) {
 					setTimeout(function(){
@@ -1871,21 +1841,16 @@ define('validation/js/jquery.validationEngine',['jquery'], function($){
 						
 						break;
 
-				case "bottomLeft":
-					promptTopPosition = fieldTop + field.height() + 5;
-					marginTopSize = 0;
-					promptleftPosition = fieldLeft;
-					break;
-				case "bottomRight":
-					promptleftPosition = fieldLeft + fieldWidth - 30;
-					promptTopPosition =  fieldTop +  field.height() + 5;
-					marginTopSize = 0;
-					break;
-				case "inline":
-					marginTopSize = 0;
-					promptleftPosition = 0;
-					promptTopPosition = 0;
-			};
+					case "bottomLeft":
+						promptTopPosition = fieldTop + field.height() + 5;
+						marginTopSize = 0;
+						promptleftPosition = fieldLeft;
+						break;
+					case "bottomRight":
+						promptleftPosition = fieldLeft + fieldWidth - 30;
+						promptTopPosition =  fieldTop +  field.height() + 5;
+						marginTopSize = 0;
+				};
 
 			
 
@@ -2007,34 +1972,31 @@ define('validation/js/jquery.validationEngine',['jquery'], function($){
 		// LEAK GLOBAL OPTIONS
 		$.validationEngine= {fieldIdCounter: 0,defaults:{
 
-		// Name of the event triggering field validation
-		validationEventTrigger: "blur",
-		// Automatically scroll viewport to the first error
-		scroll: true,
-		// Focus on the first input
-		focusFirstField:true,
-		// Show prompts, set to false to disable prompts
-		showPrompts: true,
-		// Opening box position, possible locations are: topLeft,
-		// topRight, bottomLeft, centerRight, bottomRight, inline
-		// inline gets inserted after the validated field or into an element specified in data-prompt-target
-		promptPosition: "topRight",
-		bindMethod:"bind",
-		// internal, automatically set to true when it parse a _ajax rule
-		inlineAjax: false,
-		// if set to true, the form data is sent asynchronously via ajax to the form.action url (get)
-		ajaxFormValidation: false,
-		// The url to send the submit ajax validation (default to action)
-		ajaxFormValidationURL: false,
-		// HTTP method used for ajax validation
-		ajaxFormValidationMethod: 'get',
-		// Ajax form validation callback method: boolean onComplete(form, status, errors, options)
-		// retuns false if the form.submit event needs to be canceled.
-		onAjaxFormComplete: $.noop,
-		// called right before the ajax call, may return false to cancel
-		onBeforeAjaxFormValidation: $.noop,
-		// Stops form from submitting and execute function assiciated with it
-		onValidationComplete: false,
+			// Name of the event triggering field validation
+			validationEventTrigger: "blur",
+			// Automatically scroll viewport to the first error
+			scroll: true,
+			// Focus on the first input
+			focusFirstField:true,
+			// Opening box position, possible locations are: topLeft,
+			// topRight, bottomLeft, centerRight, bottomRight
+			promptPosition: "topRight",
+			bindMethod:"bind",
+			// internal, automatically set to true when it parse a _ajax rule
+			inlineAjax: false,
+			// if set to true, the form data is sent asynchronously via ajax to the form.action url (get)
+			ajaxFormValidation: false,
+			// The url to send the submit ajax validation (default to action)
+			ajaxFormValidationURL: false,
+			// HTTP method used for ajax validation
+			ajaxFormValidationMethod: 'get',
+			// Ajax form validation callback method: boolean onComplete(form, status, errors, options)
+			// retuns false if the form.submit event needs to be canceled.
+			onAjaxFormComplete: $.noop,
+			// called right before the ajax call, may return false to cancel
+			onBeforeAjaxFormValidation: $.noop,
+			// Stops form from submitting and execute function assiciated with it
+			onValidationComplete: false,
 
 			// Used when you have a form fields too close and the errors messages are on top of other disturbing viewing messages
 			doNotShowAllErrosOnSubmit: false,
