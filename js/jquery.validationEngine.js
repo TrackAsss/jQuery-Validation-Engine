@@ -39,8 +39,6 @@ define('validation/js/jquery.validationEngine',['jquery'], function($){
 					if( !form.is('form') ) form = form.closest('form');
 					var options = form.data('jqv');
 					options.validators = {};
-					$this.validators_loaded = new $.Deferred();
-					var validators = [];
 					$(this).find('[data-validation-engine*=rfuncCall]').each(function(index, el){
 					 	var data = $(el).attr('data-validation-engine');
 					 	data = data.substring(9, data.length-1);
@@ -51,6 +49,8 @@ define('validation/js/jquery.validationEngine',['jquery'], function($){
 					 			rCalls.push(rule);
 					 		}
 					 	});
+					 	$this.validators_loaded = new $.Deferred();
+					 	var validators = [];
 					 	$.each(rCalls,function(index,rCall){
 					 		var func = rCall.split('[');
 					 		func = func[1].substr(0,func[1].length-1);
@@ -66,11 +66,11 @@ define('validation/js/jquery.validationEngine',['jquery'], function($){
 						 		});
 					 		}
 					 	});
+					 	$.when( validators ).done(function(){
+					 		form.data('jqv',options);
+					 		$this.validators_loaded.resolve();
+					 	})
 					 });
-					$.when( validators ).done(function(){
-				 		form.data('jqv',options);
-				 		$this.validators_loaded.resolve();
-				 	})
 				 }
 				 return this;
 			 },
@@ -462,33 +462,33 @@ define('validation/js/jquery.validationEngine',['jquery'], function($){
 			*/
 			_validateFormWithAjax: function(form, options) {
 
-			var data = form.serialize();
-									var type = (options.ajaxFormValidationMethod) ? options.ajaxFormValidationMethod : "GET";
-			var url = (options.ajaxFormValidationURL) ? options.ajaxFormValidationURL : form.attr("action");
-									var dataType = (options.dataType) ? options.dataType : "json";
-			$.ajax({
-				type: type,
-				url: url,
-				cache: false,
-				dataType: dataType,
-				data: data,
-				form: form,
-				methods: methods,
-				options: options,
-				beforeSend: function() {
-					return options.onBeforeAjaxFormValidation(form, options);
-				},
-				error: function(data, transport) {
-					methods._ajaxError(data, transport);
-				},
-				success: function(json) {
-					if ((dataType == "json") && (json !== true)) {
-						// getting to this case doesn't necessary means that the form is invalid
-						// the server may return green or closing prompt actions
-						// this flag helps figuring it out
-						var errorInForm=false;
-						for (var i = 0; i < json.length; i++) {
-							var value = json[i];
+				var data = form.serialize();
+										var type = (options.ajaxFormMethod) ? options.ajaxFormMethod : "GET";
+				var url = (options.ajaxFormValidationURL) ? options.ajaxFormValidationURL : form.attr("action");
+										var dataType = (options.dataType) ? options.dataType : "json";
+				$.ajax({
+					type: type,
+					url: url,
+					cache: false,
+					dataType: dataType,
+					data: data,
+					form: form,
+					methods: methods,
+					options: options,
+					beforeSend: function() {
+						return options.onBeforeAjaxFormValidation(form, options);
+					},
+					error: function(data, transport) {
+						methods._ajaxError(data, transport);
+					},
+					success: function(json) {
+						if ((dataType == "json") && (json !== true)) {
+							// getting to this case doesn't necessary means that the form is invalid
+							// the server may return green or closing prompt actions
+							// this flag helps figuring it out
+							var errorInForm=false;
+							for (var i = 0; i < json.length; i++) {
+								var value = json[i];
 
 								var errorFieldId = value[0];
 								var errorField = $($("#" + errorFieldId)[0]);
@@ -1495,20 +1495,6 @@ define('validation/js/jquery.validationEngine',['jquery'], function($){
 									 if (options.eventTrigger == "submit")
 										field.closest("form").submit();
 								 }
-								 else
-								 msg = rule.alertTextOk;
-
-								 if (options.showPrompts) {
-									 // see if we should display a green prompt
-									 if (msg)
-										methods._showPrompt(errorField, msg, "pass", true, options);
-									 else
-										methods._closePrompt(errorField);
-								}
-								
-								 // If a submit form triggered this, we want to re-submit the form
-								 if (options.eventTrigger == "submit")
-									field.closest("form").submit();
 							 }
 							 errorField.trigger("jqv.field.result", [errorField, options.isError, msg]);
 						 }
@@ -1980,33 +1966,31 @@ define('validation/js/jquery.validationEngine',['jquery'], function($){
 		// LEAK GLOBAL OPTIONS
 		$.validationEngine= {fieldIdCounter: 0,defaults:{
 
-		// Name of the event triggering field validation
-		validationEventTrigger: "blur",
-		// Automatically scroll viewport to the first error
-		scroll: true,
-		// Focus on the first input
-		focusFirstField:true,
-		// Show prompts, set to false to disable prompts
-		showPrompts: true,
-		// Opening box position, possible locations are: topLeft,
-		// topRight, bottomLeft, centerRight, bottomRight
-		promptPosition: "topRight",
-		bindMethod:"bind",
-		// internal, automatically set to true when it parse a _ajax rule
-		inlineAjax: false,
-		// if set to true, the form data is sent asynchronously via ajax to the form.action url (get)
-		ajaxFormValidation: false,
-		// The url to send the submit ajax validation (default to action)
-		ajaxFormValidationURL: false,
-		// HTTP method used for ajax validation
-		ajaxFormValidationMethod: 'get',
-		// Ajax form validation callback method: boolean onComplete(form, status, errors, options)
-		// retuns false if the form.submit event needs to be canceled.
-		onAjaxFormComplete: $.noop,
-		// called right before the ajax call, may return false to cancel
-		onBeforeAjaxFormValidation: $.noop,
-		// Stops form from submitting and execute function assiciated with it
-		onValidationComplete: false,
+			// Name of the event triggering field validation
+			validationEventTrigger: "blur",
+			// Automatically scroll viewport to the first error
+			scroll: true,
+			// Focus on the first input
+			focusFirstField:true,
+			// Opening box position, possible locations are: topLeft,
+			// topRight, bottomLeft, centerRight, bottomRight
+			promptPosition: "topRight",
+			bindMethod:"bind",
+			// internal, automatically set to true when it parse a _ajax rule
+			inlineAjax: false,
+			// if set to true, the form data is sent asynchronously via ajax to the form.action url (get)
+			ajaxFormValidation: false,
+			// The url to send the submit ajax validation (default to action)
+			ajaxFormValidationURL: false,
+			// HTTP method used for ajax validation
+			ajaxFormValidationMethod: 'get',
+			// Ajax form validation callback method: boolean onComplete(form, status, errors, options)
+			// retuns false if the form.submit event needs to be canceled.
+			onAjaxFormComplete: $.noop,
+			// called right before the ajax call, may return false to cancel
+			onBeforeAjaxFormValidation: $.noop,
+			// Stops form from submitting and execute function assiciated with it
+			onValidationComplete: false,
 
 			// Used when you have a form fields too close and the errors messages are on top of other disturbing viewing messages
 			doNotShowAllErrosOnSubmit: false,
