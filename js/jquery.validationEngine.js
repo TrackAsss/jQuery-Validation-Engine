@@ -113,6 +113,13 @@
 		* @return true if the form validates, false if it fails
 		*/
 		validate: function() {
+			console.info('Validate');
+			$(this).find('[data-validation-engine*=rfuncCall]').each(function(index, el){
+			 	var data = $(el).attr('data-validation-engine');
+			 	data.replace(/validate\[/,'');
+			 	data = data.substring(0, -1);
+			 	console.info(data);
+			 });
 			var element = $(this);
 			var valid = null;
 			if(element.is("form") && !element.hasClass('validating')) {
@@ -630,6 +637,9 @@
 					case "funcCall":
 						errorMsg = methods._getErrorMessage(form, field, rules[i], rules, i, options, methods._funcCall);
 						break;
+					case "rfuncCall":
+						errorMsg = methods._getErrorMessage(form, field, rules[i], rules, i, options, methods._rfuncCall);
+						break;
 					case "creditCard":
 						errorMsg = methods._getErrorMessage(form, field, rules[i], rules, i, options, methods._creditCard);
 						break;
@@ -983,6 +993,27 @@
 			if (typeof(fn) == 'function')
 				return fn(field, rules, i, options);
 
+		},
+		/**
+		* Validate custom function outside of the engine scope using requirejs to load the specified file
+		*
+		* @param {jqObject} field
+		* @param {Array[String]} rules
+		* @param {int} i rules index
+		* @param {Map}
+		*            user options
+		* @return an error string if validation failed
+		*/
+		_rfuncCall: function(field, rules, i, options) {
+			var functionName = rules[i + 1];
+			var fn;
+			var namespaces = functionName.split('.');
+			require([namespaces[0]+'/validators'], function(validator){
+				var fn = 'validator.' + namespaces[1];
+				if( typeof(fn) == 'function' ){
+					return fn(field, rules, i, options);
+				}
+			});
 		},
 		/**
 		* Field match
