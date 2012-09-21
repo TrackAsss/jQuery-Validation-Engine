@@ -39,8 +39,6 @@ define('validation/js/jquery.validationEngine',['jquery'], function($){
 					if( !form.is('form') ) form = form.closest('form');
 					var options = form.data('jqv');
 					options.validators = {};
-					$this.validators_loaded = new $.Deferred();
-					var validators = [];
 					$(this).find('[data-validation-engine*=rfuncCall]').each(function(index, el){
 					 	var data = $(el).attr('data-validation-engine');
 					 	data = data.substring(9, data.length-1);
@@ -51,6 +49,8 @@ define('validation/js/jquery.validationEngine',['jquery'], function($){
 					 			rCalls.push(rule);
 					 		}
 					 	});
+					 	$this.validators_loaded = new $.Deferred();
+					 	var validators = [];
 					 	$.each(rCalls,function(index,rCall){
 					 		var func = rCall.split('[');
 					 		func = func[1].substr(0,func[1].length-1);
@@ -66,11 +66,11 @@ define('validation/js/jquery.validationEngine',['jquery'], function($){
 						 		});
 					 		}
 					 	});
+					 	$.when( validators ).done(function(){
+					 		form.data('jqv',options);
+					 		$this.validators_loaded.resolve();
+					 	})
 					 });
-					$.when( validators ).done(function(){
-				 		form.data('jqv',options);
-				 		$this.validators_loaded.resolve();
-				 	})
 				 }
 				 return this;
 			 },
@@ -416,12 +416,17 @@ define('validation/js/jquery.validationEngine',['jquery'], function($){
 						if (typeof(positionType)=='string' && positionType.indexOf(":")!=-1)
 							positionType=positionType.substring(0,positionType.indexOf(":"));
 
-						if (positionType!="bottomRight" && positionType!="bottomLeft") {
-							var prompt_err= methods._getPrompt(first_err);
-							if (prompt_err) {
-								destination=prompt_err.offset().top;
-							}
+					if (positionType!="bottomRight" && positionType!="bottomLeft") {
+						var prompt_err= methods._getPrompt(first_err);
+						if (prompt_err) {
+							destination=prompt_err.offset().top;
 						}
+					}
+					
+					// Offset the amount the page scrolls by an amount in px to accomodate fixed elements at top of page
+					if (options.scrollOffset) {
+						destination -= options.scrollOffset;
+					}
 
 						// get the position of the first error, there should be at least one, no need to check this
 						//var destination = form.find(".formError:not('.greenPopup'):first").offset().top;
