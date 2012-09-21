@@ -10,6 +10,8 @@ The plugin provides visually appealing prompts that grab user attention on the s
 Validations range from email, phone, and URL, to more complex calls such as ajax processing or custom javascript functions.
 Bundled with many locales, the error prompts can be translated into the language of your choice. 
 
+This fork is intended to adopt requirejs for use of 3rd party validation function calls
+
 
 
 ![Screenshot](https://github.com/posabsolute/jQuery-Validation-Engine/raw/master/css/screenshot.png)
