@@ -39,6 +39,8 @@ define('validation/js/jquery.validationEngine',['jquery'], function($){
 					if( !form.is('form') ) form = form.closest('form');
 					var options = form.data('jqv');
 					options.validators = {};
+					$this.validators_loaded = new $.Deferred();
+					var validators = [];
 					$(this).find('[data-validation-engine*=rfuncCall]').each(function(index, el){
 					 	var data = $(el).attr('data-validation-engine');
 					 	data = data.substring(9, data.length-1);
@@ -49,8 +51,6 @@ define('validation/js/jquery.validationEngine',['jquery'], function($){
 					 			rCalls.push(rule);
 					 		}
 					 	});
-					 	$this.validators_loaded = new $.Deferred();
-					 	var validators = [];
 					 	$.each(rCalls,function(index,rCall){
 					 		var func = rCall.split('[');
 					 		func = func[1].substr(0,func[1].length-1);
@@ -66,11 +66,11 @@ define('validation/js/jquery.validationEngine',['jquery'], function($){
 						 		});
 					 		}
 					 	});
-					 	$.when( validators ).done(function(){
-					 		form.data('jqv',options);
-					 		$this.validators_loaded.resolve();
-					 	})
 					 });
+					$.when( validators ).done(function(){
+				 		form.data('jqv',options);
+				 		$this.validators_loaded.resolve();
+				 	})
 				 }
 				 return this;
 			 },
