@@ -462,33 +462,33 @@ define('validation/js/jquery.validationEngine',['jquery'], function($){
 			*/
 			_validateFormWithAjax: function(form, options) {
 
-				var data = form.serialize();
-										var type = (options.ajaxFormMethod) ? options.ajaxFormMethod : "GET";
-				var url = (options.ajaxFormValidationURL) ? options.ajaxFormValidationURL : form.attr("action");
-										var dataType = (options.dataType) ? options.dataType : "json";
-				$.ajax({
-					type: type,
-					url: url,
-					cache: false,
-					dataType: dataType,
-					data: data,
-					form: form,
-					methods: methods,
-					options: options,
-					beforeSend: function() {
-						return options.onBeforeAjaxFormValidation(form, options);
-					},
-					error: function(data, transport) {
-						methods._ajaxError(data, transport);
-					},
-					success: function(json) {
-						if ((dataType == "json") && (json !== true)) {
-							// getting to this case doesn't necessary means that the form is invalid
-							// the server may return green or closing prompt actions
-							// this flag helps figuring it out
-							var errorInForm=false;
-							for (var i = 0; i < json.length; i++) {
-								var value = json[i];
+			var data = form.serialize();
+									var type = (options.ajaxFormValidationMethod) ? options.ajaxFormValidationMethod : "GET";
+			var url = (options.ajaxFormValidationURL) ? options.ajaxFormValidationURL : form.attr("action");
+									var dataType = (options.dataType) ? options.dataType : "json";
+			$.ajax({
+				type: type,
+				url: url,
+				cache: false,
+				dataType: dataType,
+				data: data,
+				form: form,
+				methods: methods,
+				options: options,
+				beforeSend: function() {
+					return options.onBeforeAjaxFormValidation(form, options);
+				},
+				error: function(data, transport) {
+					methods._ajaxError(data, transport);
+				},
+				success: function(json) {
+					if ((dataType == "json") && (json !== true)) {
+						// getting to this case doesn't necessary means that the form is invalid
+						// the server may return green or closing prompt actions
+						// this flag helps figuring it out
+						var errorInForm=false;
+						for (var i = 0; i < json.length; i++) {
+							var value = json[i];
 
 								var errorFieldId = value[0];
 								var errorField = $($("#" + errorFieldId)[0]);
