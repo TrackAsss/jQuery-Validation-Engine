@@ -1999,29 +1999,32 @@ define('validation/js/jquery.validationEngine',['jquery'], function($){
 			// Auto update prompt position after window resize
 			autoPositionUpdate: false,
 
-			InvalidFields: [],
-			onFieldSuccess: false,
-			onFieldFailure: false,
-			onFormSuccess: false,
-			onFormFailure: false,
-			addSuccessCssClassToField: false,
-			addFailureCssClassToField: false,
-			
-			// Auto-hide prompt
-			autoHidePrompt: false,
-			// Delay before auto-hide
-			autoHideDelay: 10000,
-			// Fade out duration while hiding the validations
-			fadeDuration: 0.3,
-		 // Use Prettify select library
-		 prettySelect: false,
-		 // Custom ID uses prefix
-		 usePrefix: "",
-		 // Custom ID uses suffix
-		 useSuffix: "",
-		 // Only show one message per error prompt
-		 showOneMessage: false
-		}};
-		$(function(){$.validationEngine.defaults.promptPosition = methods.isRTL()?'topLeft':"topRight"});
-	})(jQuery);
-});
+		InvalidFields: [],
+		onFieldSuccess: false,
+		onFieldFailure: false,
+		onSuccess: false,
+		onFailure: false,
+		addSuccessCssClassToField: false,
+		addFailureCssClassToField: false,
+		
+		// Auto-hide prompt
+		autoHidePrompt: false,
+		// Delay before auto-hide
+		autoHideDelay: 10000,
+		// Fade out duration while hiding the validations
+		fadeDuration: 0.3,
+	 // Use Prettify select library
+	 prettySelect: false,
+	 // Add css class on prompt
+	 addPromptClass : "",
+	 // Custom ID uses prefix
+	 usePrefix: "",
+	 // Custom ID uses suffix
+	 useSuffix: "",
+	 // Only show one message per error prompt
+	 showOneMessage: false
+	}};
+	$(function(){$.validationEngine.defaults.promptPosition = methods.isRTL()?'topLeft':"topRight"});
+})(jQuery);
+
+
