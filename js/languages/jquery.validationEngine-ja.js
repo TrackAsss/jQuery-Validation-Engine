@@ -1,3 +1,4 @@
+define( "validation/js/languages/jquery.validationEngine-ja", [], function(){
 ;/*****************************************************************
  * Japanese language file for jquery.validationEngine.js (ver2.0)
  *
@@ -147,3 +148,5 @@
 
 
     
+
+});
