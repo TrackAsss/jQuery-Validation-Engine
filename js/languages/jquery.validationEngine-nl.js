@@ -1,3 +1,4 @@
+define( "validation/js/languages/jquery.validationEngine-nl", [], function(){
 (function($){
 	$.fn.validationEngineLanguage = function(){
 	};
@@ -134,3 +135,5 @@
 	$.validationEngineLanguage.newLang();
 })(jQuery);
 
+
+});

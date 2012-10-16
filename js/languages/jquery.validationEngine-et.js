@@ -1,3 +1,4 @@
+define( "validation/js/languages/jquery.validationEngine-et", [], function(){
 (function($){
     $.fn.validationEngineLanguage = function(){
     };
@@ -137,3 +138,4 @@
     };
     $.validationEngineLanguage.newLang();
 })(jQuery);
+});
