@@ -1,3 +1,4 @@
+define( "assets/vendors/jQuery-Validation-Engine/js/contrib/other-validations", [], function(){
 /*
  This file contains validations that are too specific to be part of the core
  Please reference the file AFTER the translation file or the rules will be overwritten
@@ -45,3 +46,5 @@
 	//	# more validations may be added after this point
 	}
 })(jQuery);
+
+});
