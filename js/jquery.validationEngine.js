@@ -521,8 +521,17 @@ define('validation/js/jquery.validationEngine',['jquery'], function($){
 											if (txt)
 												msg = txt;
 										}
-										methods._showPrompt(errorField, msg, "", false, options, true);
+										if (options.showPrompts) methods._showPrompt(errorField, msg, "pass", false, options, true);
 									}
+								} else {
+									// the field is invalid, show the red error prompt
+									errorInForm|=true;
+									if (options.allrules[msg]) {
+										var txt = options.allrules[msg].alertText;
+										if (txt)
+											msg = txt;
+									}
+									if(options.showPrompts) methods._showPrompt(errorField, msg, "", false, options, true);
 								}
 							}
 							options.onAjaxFormComplete(!errorInForm, form, json, options);
@@ -754,11 +763,11 @@ define('validation/js/jquery.validationEngine',['jquery'], function($){
 					field = form.find("#" + options.usePrefix + methods._jqSelector(field.attr('id')) + options.useSuffix);
 				}
 
-				if (options.isError){
-					methods._showPrompt(field, promptText, promptType, false, options);
-				}else{
-					if (!isAjaxValidator) methods._closePrompt(field);
-				}
+			if (options.isError && options.showPrompts){
+				methods._showPrompt(field, promptText, promptType, false, options);
+			}else{
+				if (!isAjaxValidator) methods._closePrompt(field);
+			}
 
 				if (!isAjaxValidator) {
 					field.trigger("jqv.field.result", [field, options.isError, promptText]);
@@ -1460,9 +1469,9 @@ define('validation/js/jquery.validationEngine',['jquery'], function($){
 									 else
 										msg = rule.alertText;
 
-									 methods._showPrompt(errorField, msg, "", true, options);
-								 } else {
-									 options.ajaxValidCache[errorFieldId] = true;
+								 if (options.showPrompts) methods._showPrompt(errorField, msg, "", true, options);
+							 } else {
+								 options.ajaxValidCache[errorFieldId] = true;
 
 									 // resolves the msg prompt
 									 if(msg) {
@@ -1486,6 +1495,20 @@ define('validation/js/jquery.validationEngine',['jquery'], function($){
 									 if (options.eventTrigger == "submit")
 										field.closest("form").submit();
 								 }
+								 else
+								 msg = rule.alertTextOk;
+
+								 if (options.showPrompts) {
+									 // see if we should display a green prompt
+									 if (msg)
+										methods._showPrompt(errorField, msg, "pass", true, options);
+									 else
+										methods._closePrompt(errorField);
+								}
+								
+								 // If a submit form triggered this, we want to re-submit the form
+								 if (options.eventTrigger == "submit")
+									field.closest("form").submit();
 							 }
 							 errorField.trigger("jqv.field.result", [errorField, options.isError, msg]);
 						 }
@@ -1954,31 +1977,33 @@ define('validation/js/jquery.validationEngine',['jquery'], function($){
 		// LEAK GLOBAL OPTIONS
 		$.validationEngine= {fieldIdCounter: 0,defaults:{
 
-			// Name of the event triggering field validation
-			validationEventTrigger: "blur",
-			// Automatically scroll viewport to the first error
-			scroll: true,
-			// Focus on the first input
-			focusFirstField:true,
-			// Opening box position, possible locations are: topLeft,
-			// topRight, bottomLeft, centerRight, bottomRight
-			promptPosition: "topRight",
-			bindMethod:"bind",
-			// internal, automatically set to true when it parse a _ajax rule
-			inlineAjax: false,
-			// if set to true, the form data is sent asynchronously via ajax to the form.action url (get)
-			ajaxFormValidation: false,
-			// The url to send the submit ajax validation (default to action)
-			ajaxFormValidationURL: false,
-			// HTTP method used for ajax validation
-			ajaxFormValidationMethod: 'get',
-			// Ajax form validation callback method: boolean onComplete(form, status, errors, options)
-			// retuns false if the form.submit event needs to be canceled.
-			onAjaxFormComplete: $.noop,
-			// called right before the ajax call, may return false to cancel
-			onBeforeAjaxFormValidation: $.noop,
-			// Stops form from submitting and execute function assiciated with it
-			onValidationComplete: false,
+		// Name of the event triggering field validation
+		validationEventTrigger: "blur",
+		// Automatically scroll viewport to the first error
+		scroll: true,
+		// Focus on the first input
+		focusFirstField:true,
+		// Show prompts, set to false to disable prompts
+		showPrompts: true,
+		// Opening box position, possible locations are: topLeft,
+		// topRight, bottomLeft, centerRight, bottomRight
+		promptPosition: "topRight",
+		bindMethod:"bind",
+		// internal, automatically set to true when it parse a _ajax rule
+		inlineAjax: false,
+		// if set to true, the form data is sent asynchronously via ajax to the form.action url (get)
+		ajaxFormValidation: false,
+		// The url to send the submit ajax validation (default to action)
+		ajaxFormValidationURL: false,
+		// HTTP method used for ajax validation
+		ajaxFormValidationMethod: 'get',
+		// Ajax form validation callback method: boolean onComplete(form, status, errors, options)
+		// retuns false if the form.submit event needs to be canceled.
+		onAjaxFormComplete: $.noop,
+		// called right before the ajax call, may return false to cancel
+		onBeforeAjaxFormValidation: $.noop,
+		// Stops form from submitting and execute function assiciated with it
+		onValidationComplete: false,
 
 			// Used when you have a form fields too close and the errors messages are on top of other disturbing viewing messages
 			doNotShowAllErrosOnSubmit: false,
