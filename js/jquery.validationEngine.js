@@ -1543,41 +1543,44 @@ define('validation/js/jquery.validationEngine',['jquery'], function($){
 			*/
 			_parseDate: function(d) {
 
-				var dateParts = d.split("-");
-				if(dateParts==d)
-					dateParts = d.split("/");
-				return new Date(dateParts[0], (dateParts[1] - 1) ,dateParts[2]);
-			},
-			/**
-			* Builds or updates a prompt with the given information
-			*
-			* @param {jqObject} field
-			* @param {String} promptText html text to display type
-			* @param {String} type the type of bubble: 'pass' (green), 'load' (black) anything else (red)
-			* @param {boolean} ajaxed - use to mark fields than being validated with ajax
-			* @param {Map} options user options
-			*/
-			 _showPrompt: function(field, promptText, type, ajaxed, options, ajaxform) {
-				 var prompt = methods._getPrompt(field);
-				 // The ajax submit errors are not see has an error in the form,
-				 // When the form errors are returned, the engine see 2 bubbles, but those are ebing closed by the engine at the same time
-				 // Because no error was found befor submitting
-				 if(ajaxform) prompt = false;
+			var dateParts = d.split("-");
+			if(dateParts==d)
+				dateParts = d.split("/");
+			return new Date(dateParts[0], (dateParts[1] - 1) ,dateParts[2]);
+		},
+		/**
+		* Builds or updates a prompt with the given information
+		*
+		* @param {jqObject} field
+		* @param {String} promptText html text to display type
+		* @param {String} type the type of bubble: 'pass' (green), 'load' (black) anything else (red)
+		* @param {boolean} ajaxed - use to mark fields than being validated with ajax
+		* @param {Map} options user options
+		*/
+		 _showPrompt: function(field, promptText, type, ajaxed, options, ajaxform) {
+			 var prompt = methods._getPrompt(field);
+			 // The ajax submit errors are not see has an error in the form,
+			 // When the form errors are returned, the engine see 2 bubbles, but those are ebing closed by the engine at the same time
+			 // Because no error was found befor submitting
+			 if(ajaxform) prompt = false;
+			 // Check that there is indded text
+			 if($.trim(promptText)){ 
 				 if (prompt)
 					methods._updatePrompt(field, prompt, promptText, type, ajaxed, options);
 				 else
 					methods._buildPrompt(field, promptText, type, ajaxed, options);
-			 },
-			/**
-			* Builds and shades a prompt for the given field.
-			*
-			* @param {jqObject} field
-			* @param {String} promptText html text to display type
-			* @param {String} type the type of bubble: 'pass' (green), 'load' (black) anything else (red)
-			* @param {boolean} ajaxed - use to mark fields than being validated with ajax
-			* @param {Map} options user options
-			*/
-			_buildPrompt: function(field, promptText, type, ajaxed, options) {
+			}
+		 },
+		/**
+		* Builds and shades a prompt for the given field.
+		*
+		* @param {jqObject} field
+		* @param {String} promptText html text to display type
+		* @param {String} type the type of bubble: 'pass' (green), 'load' (black) anything else (red)
+		* @param {boolean} ajaxed - use to mark fields than being validated with ajax
+		* @param {Map} options user options
+		*/
+		_buildPrompt: function(field, promptText, type, ajaxed, options) {
 
 				// create the prompt
 				var prompt = $('<div>');
