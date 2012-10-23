@@ -2016,6 +2016,7 @@ define('validation/js/jquery.validationEngine',['jquery'], function($){
 		onFieldFailure: false,
 		onSuccess: false,
 		onFailure: false,
+		validateAttribute: "class",
 		addSuccessCssClassToField: false,
 		addFailureCssClassToField: false,
 		
