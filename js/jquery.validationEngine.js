@@ -752,8 +752,21 @@ define('validation/js/jquery.validationEngine',['jquery'], function($){
 						field_errors++;
 					}	
 				}
-				// If the rules required is not added, an empty field is not validated
-				if(!required && field.val().length < 1) options.isError = false;
+				
+				// If it has been specified that validation should end now, break
+				if (end_validation) {
+					break;
+				}
+				
+				// If we have a string, that means that we have an error, so add it to the error message.
+				if (typeof errorMsg == 'string') {
+					promptText += errorMsg + "<br/>";
+					options.isError = true;
+					field_errors++;
+				}	
+			}
+			// If the rules required is not added, an empty field is not validated
+			if(!required && field.val() && field.val().length < 1) options.isError = false;
 
 				// Hack for radio/checkbox group button, the validation go into the
 				// first radio/checkbox of the group
