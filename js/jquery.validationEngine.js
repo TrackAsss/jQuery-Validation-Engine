@@ -136,9 +136,12 @@ define('validation/js/jquery.validationEngine',['jquery'], function($){
 				form.find("["+options.validateAttribute+"*=validate]").not("[type=checkbox]").die(options.validationEventTrigger, methods._onFieldEvent);
 				form.find("["+options.validateAttribute+"*=validate][type=checkbox]").die("click", methods._onFieldEvent);
 
-				// unbind form.submit
-				form.die("submit", methods.onAjaxFormComplete);
-				form.removeData('jqv');
+			// unbind form.submit
+			form.die("submit", methods.onAjaxFormComplete);
+			form.removeData('jqv');
+            
+			form.off("click", "a[data-validation-engine-skip], a[class*='validate-skip'], button[data-validation-engine-skip], button[class*='validate-skip'], input[data-validation-engine-skip], input[class*='validate-skip']", _submitButtonClick);
+			form.removeData('jqv_submitButton');
 
 				if (options.autoPositionUpdate)
 					$(window).unbind("resize", methods.updatePromptsPosition);
@@ -1933,7 +1936,14 @@ define('validation/js/jquery.validationEngine',['jquery'], function($){
 					}
 				}
 			}
-			  };
+		},
+
+	    _submitButtonClick: function(event) {
+	        var button = $(this);
+	        var form = button.closest('form');
+	        form.data("jqv_submitButton", button.attr("id"));
+	    }
+		  };
 
 		 /**
 		 * Plugin entry point.
