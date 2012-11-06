@@ -211,9 +211,10 @@ define('validation/js/jquery.validationEngine',['jquery'], function($){
 			*/
 			updatePromptsPosition: function(event) {
 
-				if (event && this == window) {
-					var form = event.data.formElem;
-					var noAnimation = event.data.noAnimation;
+				if (valid && options.onFieldSuccess)
+					options.onFieldSuccess(element);
+				else if (options.onFieldFailure && options.InvalidFields.length > 0) {
+					options.onFieldFailure(element);
 				}
 				else
 					var form = $(this.closest('form'));
