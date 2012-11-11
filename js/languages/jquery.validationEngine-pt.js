@@ -189,5 +189,5 @@ define( "validation/js/languages/jquery.validationEngine-pt", [], function(){
     };
 
     $.validationEngineLanguage.newLang();
+    
 })(jQuery);
-});
