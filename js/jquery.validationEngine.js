@@ -125,22 +125,18 @@ define('validation/js/jquery.validationEngine',['jquery'], function($){
 				var form = this;
 				var options = form.data('jqv');
 
-				// unbind fields
-				form.find("["+options.validateAttribute+"*=validate]").not("[type=checkbox]").unbind(options.validationEventTrigger, methods._onFieldEvent);
-				form.find("["+options.validateAttribute+"*=validate][type=checkbox],[class*=validate][type=radio]").unbind("click", methods._onFieldEvent);
+			// unbind fields
+			form.find("["+options.validateAttribute+"*=validate]").not("[type=checkbox]").off(options.validationEventTrigger, methods._onFieldEvent);
+			form.find("["+options.validateAttribute+"*=validate][type=checkbox],[class*=validate][type=radio]").off("click", methods._onFieldEvent);
 
-				// unbind form.submit
-				form.unbind("submit", methods.onAjaxFormComplete);
-
-				// unbind live fields (kill)
-				form.find("["+options.validateAttribute+"*=validate]").not("[type=checkbox]").die(options.validationEventTrigger, methods._onFieldEvent);
-				form.find("["+options.validateAttribute+"*=validate][type=checkbox]").die("click", methods._onFieldEvent);
+			// unbind form.submit
+			form.off("submit", methods.onAjaxFormComplete);
 
 			// unbind form.submit
 			form.die("submit", methods.onAjaxFormComplete);
 			form.removeData('jqv');
             
-			form.off("click", "a[data-validation-engine-skip], a[class*='validate-skip'], button[data-validation-engine-skip], button[class*='validate-skip'], input[data-validation-engine-skip], input[class*='validate-skip']", _submitButtonClick);
+			form.off("click", "a[data-validation-engine-skip], a[class*='validate-skip'], button[data-validation-engine-skip], button[class*='validate-skip'], input[data-validation-engine-skip], input[class*='validate-skip']", methods._submitButtonClick);
 			form.removeData('jqv_submitButton');
 
 				if (options.autoPositionUpdate)
