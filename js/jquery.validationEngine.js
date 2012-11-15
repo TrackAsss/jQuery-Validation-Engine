@@ -39,6 +39,8 @@ define('validation/js/jquery.validationEngine',['jquery'], function($){
 					if( !form.is('form') ) form = form.closest('form');
 					var options = form.data('jqv');
 					options.validators = {};
+					$this.validators_loaded = new $.Deferred();
+					var validators = [];
 					$(this).find('[data-validation-engine*=rfuncCall]').each(function(index, el){
 					 	var data = $(el).attr('data-validation-engine');
 					 	data = data.substring(9, data.length-1);
@@ -49,8 +51,6 @@ define('validation/js/jquery.validationEngine',['jquery'], function($){
 					 			rCalls.push(rule);
 					 		}
 					 	});
-					 	$this.validators_loaded = new $.Deferred();
-					 	var validators = [];
 					 	$.each(rCalls,function(index,rCall){
 					 		var func = rCall.split('[');
 					 		func = func[1].substr(0,func[1].length-1);
@@ -66,11 +66,11 @@ define('validation/js/jquery.validationEngine',['jquery'], function($){
 						 		});
 					 		}
 					 	});
-					 	$.when( validators ).done(function(){
-					 		form.data('jqv',options);
-					 		$this.validators_loaded.resolve();
-					 	})
 					 });
+					$.when( validators ).done(function(){
+				 		form.data('jqv',options);
+				 		$this.validators_loaded.resolve();
+				 	})
 				 }
 				 return this;
 			 },
@@ -207,10 +207,9 @@ define('validation/js/jquery.validationEngine',['jquery'], function($){
 			*/
 			updatePromptsPosition: function(event) {
 
-				if (valid && options.onFieldSuccess)
-					options.onFieldSuccess();
-				else if (options.onFieldFailure && options.InvalidFields.length > 0) {
-					options.onFieldFailure();
+				if (event && this == window) {
+					var form = event.data.formElem;
+					var noAnimation = event.data.noAnimation;
 				}
 				else
 					var form = $(this.closest('form'));
@@ -1627,19 +1626,46 @@ define('validation/js/jquery.validationEngine',['jquery'], function($){
 				if (field.closest('.ui-dialog').length)
 					prompt.addClass('formErrorInsideDialog');
 
-				prompt.css({
-					"opacity": 0,
-					'position':'absolute'
+					switch (positionType) {
+						case "bottomLeft":
+						case "bottomRight":
+							prompt.find(".formErrorContent").before(arrow);
+							arrow.addClass("formErrorArrowBottom").html('<div class="line1"><!-- --></div><div class="line2"><!-- --></div><div class="line3"><!-- --></div><div class="line4"><!-- --></div><div class="line5"><!-- --></div><div class="line6"><!-- --></div><div class="line7"><!-- --></div><div class="line8"><!-- --></div><div class="line9"><!-- --></div><div class="line10"><!-- --></div>');
+							break;
+						case "topLeft":
+						case "topRight":
+							arrow.html('<div class="line10"><!-- --></div><div class="line9"><!-- --></div><div class="line8"><!-- --></div><div class="line7"><!-- --></div><div class="line6"><!-- --></div><div class="line5"><!-- --></div><div class="line4"><!-- --></div><div class="line3"><!-- --></div><div class="line2"><!-- --></div><div class="line1"><!-- --></div>');
+							prompt.append(arrow);
+							break;
+					}
+				}
+				// Modify z-indexes  for jquery ui
+				if (field.closest('.ui-dialog').length)
+					prompt.addClass('formErrorInsideDialog');
+
+				if (options.autoHidePrompt) {
+					setTimeout(function(){
+						prompt.animate({
+							"opacity": 0
+						},function(){
+							prompt.closest('.formErrorOuter').remove();
+							prompt.remove();
+						});
+					}, options.autoHideDelay);
+				} 
+				return prompt.animate({
+					"opacity": 0.87
 				});
-				field.before(prompt);
-				
-				var pos = methods._calculatePosition(field, prompt, options);
-				prompt.css({
-					"top": pos.callerTopPosition,
-					"left": pos.callerleftPosition,
-					"marginTop": pos.marginTopSize,
-					"opacity": 0
-				}).data("callerField", field);
+			},
+			/**
+			* Updates the prompt text field - the field for which the prompt
+			* @param {jqObject} field
+			* @param {String} promptText html text to display type
+			* @param {String} type the type of bubble: 'pass' (green), 'load' (black) anything else (red)
+			* @param {boolean} ajaxed - use to mark fields than being validated with ajax
+			* @param {Map} options user options
+			*/
+			_updatePrompt: function(field, prompt, promptText, type, ajaxed, options, noAnimation) {
 
 				if (options.autoHidePrompt) {
 					setTimeout(function(){
