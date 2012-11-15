@@ -10,21 +10,22 @@
     <script type="text/javascript">
       $(document).ready(function() {
 
-        $('#id1').validationEngine('validate');
+        $('#form').validationEngine();
+        alert($('#form').validationEngine('validate'));
       });
     </script>
   </head>
   <body>
    
     <p>
-      See <a href="https://github.com/posabsolute/jQuery-Validation-Engine/issues/493">https://github.com/posabsolute/jQuery-Validation-Engine/issues/493</a>
+      See <a href="https://github.com/posabsolute/jQuery-Validation-Engine/issues/480">https://github.com/posabsolute/jQuery-Validation-Engine/issues/480</a>
       for information.
     </p>
 <form id="form">
-    <label for="id1">
-        ID1
-    </label>        
-    <input id="id1" name="id1" class="validate[required]" type="text"/>
+    <input type="radio" value="1" id="result_pass" class="validate[required] radio"  name="result">               
+    <input type="radio" value="0" id="result_fail" class="validate[required] radio"  name="result">                
+    <input type="radio" value="2" id="result_na" class="validate[required] radio"  name="result">
+
 </form>
   </body>
 </html>
